@@ -15,14 +15,14 @@ tiltPos = center
 
 pwm.set_pwm_freq(50)
 
-def panTilt(control, input):
-    if (control == 304) and (input == 1):
+def panTilt(control, status):
+    if (control == 304) and (status == 1):
         pwm.set_pwm(pan, 0, center)
         pwm.set_pwm(tilt, 0, center)
         print ('Camera centered')
     elif control == 16:
         print ('control = 16')
-        if input == 1:
+        if status == 1:
             servoUp()
     return
 

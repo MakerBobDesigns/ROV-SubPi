@@ -10,21 +10,21 @@ def dataTransfer(conn):
         # from the rest of the data.
         dataMessage = data.split(' ', 1)
         control = int(dataMessage[0])
-        input = int(dataMessage[1])
+        status = int(dataMessage[1])
         if control in [0, 1, 3, 4]:
             reply = "Joystick"
             print (reply)
-            #Call speedControl (control, input) 
+            #Call speedControl (control, status) 
             #break
         elif control in [2, 5, 310, 311]:
             reply = "Manipulator"
             print (reply)
-            #Call manipulator (control, input)
+            #Call manipulator (control, status)
             #break
         elif control in [16, 17, 304]:
             reply = "Pan / Tilt"
             print(reply)
-            panTilt(control, input)
+            panTilt(control, status)
             #break
         elif control == 305:
             if position == 1:
@@ -37,7 +37,7 @@ def dataTransfer(conn):
         elif control in [307, 308]:
             reply = "Ballast"
             print (reply)
-            #Call ballast (control, input)
+            #Call ballast (control, status)
             #break
         elif control == 'EXIT':
             print("Our client has left us :(")
