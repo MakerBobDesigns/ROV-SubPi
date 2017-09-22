@@ -1,60 +1,54 @@
 from ROVServer import setupServer, setupConnection
 from panTilt import panTilt
 
+controlCodes = ("0", "1", "2", "3", "4", "5", "16", "17",
+		"304", "305", "307", "308", "310", "311",
+		"314", "315", "316", "317", "318")
+status = [128, -129, 0, 128, -129, 0, 0, 0,
+	  0, 0, 0, 0, 0, 0,
+	  0, 0, 0, 0, 0]
+
 def dataTransfer(conn):
-    # A big loop that sends/receives data until told not to.
-    while True:
-        # Receive the data
-        data = conn.recv(16) # receive the data
-        # Split the data such that you separate the command
-        # from the rest of the data.
-        dataMessage = data.split(' ', 1)
-        control = int(dataMessage[0])
-        status = int(dataMessage[1])
-        if control in [0, 1, 3, 4]:
-            reply = "Joystick"
-            print (reply)
-            #Call speedControl (control, status) 
-            #break
-        elif control in [2, 5, 310, 311]:
-            reply = "Manipulator"
-            print (reply)
-            #Call manipulator (control, status)
-            #break
-        elif control in [16, 17, 304]:
-            reply = "Pan / Tilt"
-            print(reply)
-            panTilt(control, status)
-            #break
-        elif control == 305:
-            if position == 1:
-                reply = "Lights"
-                print (reply)
-                #Call lights()
-                #break
-            else:
-                break
-        elif control in [307, 308]:
-            reply = "Ballast"
-            print (reply)
-            #Call ballast (control, status)
-            #break
-        elif control == 'EXIT':
-            print("Our client has left us :(")
-            break
-        elif control == 'KILL':
-            print("Our server is shutting down.")
-            s.close()
-            break
-        else:
-            reply = 'Unknown Command'
-            print (reply)
-            #break
-        # Send the reply back to the client
-        conn.send(reply)
-        print("Data has been sent!")
-        break
-    conn.close()
+	storedVal = [266, 266, 0]
+	# loop that sends/receives data until told not to.
+	while True:
+		data = conn.recv(16) # receive the data
+		# Split the data such that you separate the command
+		# from the rest of the data.
+		dataMessage = data.split(' ', 1)
+		control = dataMessage[0]
+		newStatus = int(dataMessage[1])
+		status[controlCodes.index(control)] = newStatus
+		reply = "Status Updated"
+		# Send the reply back to the client
+		conn.send(reply)
+		storedVal = statusUpdate(status, storedVal)
+	
+def statusUpdate(status, storedVal):
+	panPos = storedVal[0]
+	tiltPos = storedVal[1]
+	onOff = storedVal[2]
+
+	#control in [16, 17, 304]:
+	panPos, tiltPos = panTilt(status[6], status[7], status[8], panPos, tiltPos)
+
+	#control in [0, 1, 3, 4]:
+	#Call speedControl (status[0], status[1], status[3], status[4]) 
+        
+	#control in [2, 5, 310, 311]:
+	#Call manipulator (status[2], status[5], status[12], status[13])
+        
+	#control == 305:
+	#Call onOff = lights(status[9], onOff)
+	
+	#control in [307, 308]:
+	#Call ballast (status[10], status[11])
+	
+	#Unassigned buttons:
+	#317, 318 Joysticks
+	#314, 315, 316 
+
+	return (panPos, tiltPos, onOff)
 
 s = setupServer()
 

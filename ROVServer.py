@@ -1,3 +1,4 @@
+import sys
 import socket
 
 host = '10.66.66.2'
@@ -5,6 +6,7 @@ port = 2222
 
 def setupServer():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     print("Socket created.")
     try:
         s.bind((host, port))
